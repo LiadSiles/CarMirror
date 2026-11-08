@@ -17,6 +17,11 @@ Owner: Liad (LiadSiles). Not for the Play Store (Google forbids screen mirroring
 - Two flavors: `full` (declares TouchService in `src/full/AndroidManifest.xml`) and `lite` (no accessibility
   service, because Play Protect blocks browser-sideloaded APKs that declare one). `R.bool.has_touch` tells code which.
 
+## Install gotcha
+Android Auto hides Car App Library apps unless the installer is recorded as Play (`com.android.vending`);
+AA's "Unknown sources" toggle isn't enough. Users install via UnknownAuto (Shizuku) or
+`adb install -i com.android.vending`. A future option: build that installer flow into the app itself.
+
 ## Rules
 - Keep the parked-only safety (video hidden while the car moves). Don't add a way to bypass it.
 - Every push to `main` builds and publishes a GitHub release; `versionCode` = CI run number.

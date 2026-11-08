@@ -32,11 +32,26 @@ Open **Car Mirror** on your phone, then:
    - If it's greyed out or says "Restricted setting": go back to Car Mirror, tap **Open app info → ⋮ (top right) → Allow restricted settings**, then try again.
 
 ### 3. Let Android Auto show the app (one time)
-1. Open Android Auto settings on your phone. On most phones that's **Settings → Connected devices → Connection preferences → Android Auto**. On Samsung, search Settings for "Android Auto".
-2. Scroll to the bottom and tap **Version** about 10 times. When asked "Allow development settings?", tap **OK**.
-3. Tap **⋮ (top right) → Developer settings**, then turn on **Unknown sources**.
-4. Go back and open **Customize launcher**. Make sure **Car Mirror** is checked.
-5. Unplug the phone from the car, or turn the car off and on, so Android Auto reloads.
+Android Auto only runs apps like this one if the phone thinks they were installed from Google Play.
+The "Unknown sources" switch alone isn't enough, so Car Mirror has to be installed with **UnknownAuto**,
+which marks it as installed from Play. No computer is needed, but the phone must be on Wi-Fi.
+
+1. **Android Auto developer mode:** in Android Auto settings, tap **Version** about 10 times, then go to *⋮ → Developer settings* and turn on **Unknown sources**.
+2. **Phone developer options:** *Settings → About phone*, tap **Build number** (MIUI/HyperOS: **OS version**) 7 times.
+3. **Install UnknownAuto:** download `UnknownAuto-*.apk` from https://github.com/GitMag/UnknownAuto/releases/latest and install it. It's a third-party tool, not ours.
+4. **Install and start Shizuku**, either from inside UnknownAuto or from Google Play:
+   - Open *Developer options → Wireless debugging* and turn it on.
+   - In Shizuku, tap **Pairing**. In Wireless debugging, tap *Pair device with pairing code*, then type the 6-digit code into Shizuku's notification.
+   - In Shizuku, tap **Start**.
+   - On Xiaomi/POCO, also turn off battery optimization for Shizuku.
+5. **In UnknownAuto:** tap **Load APK**, pick the Car Mirror APK you downloaded, then tap **Install**.
+   - Allow UnknownAuto in Shizuku ("Allow all the time").
+   - If Play Protect asks, choose *More details → Install without scanning*. This also lets the full version (with touch) install.
+   - Wait for the ✔ banner. It means Android Auto will accept the app.
+6. **Restart Android Auto:** open *Settings → Apps → Android Auto → Force stop*, then go to Android Auto settings → **Customize launcher**. Car Mirror is now in the list; make sure it's checked.
+
+Every Car Mirror update must be installed through UnknownAuto in the same way. Installing from the browser removes the Play mark.
+With a computer, you can skip steps 2-5 and run: `adb install -r -i com.android.vending CarMirror.apk`
 
 ## Every time in the car
 1. Connect the phone to the car (cable or wireless).
@@ -55,7 +70,7 @@ Open **Car Mirror** on your phone, then:
 ## Troubleshooting
 | Problem | Fix |
 |---|---|
-| Car Mirror isn't in the car's app list | Check step 3 (Unknown sources and Customize launcher), then reconnect the phone. |
+| Car Mirror isn't in Customize launcher | It was installed from the browser. Reinstall it through UnknownAuto (step 3). |
 | Car screen stays black or shows the message | Tap **Start mirroring** on the phone. If it's already on, tap Stop, then Start. |
 | Taps on the car do nothing | Touch control is off. Repeat step 2.2. (Lite has no touch control.) |
 | "App blocked by Play Protect" | See the options under **Download**. |
