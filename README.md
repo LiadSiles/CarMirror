@@ -13,8 +13,7 @@ There are two versions. Open the link on your phone; it always points to the new
 
 **"App blocked by Play Protect"?** Play Protect blocks downloaded apps that use Accessibility, which the full version needs for touch control. You have three options:
 1. **Install Lite.** It installs normally; you just control the phone from the phone.
-2. **Turn off Play Protect while you install the full version:** open the *Play Store → profile icon → Play Protect → ⚙️* and switch off **Scan apps with Play Protect**. Install `CarMirror.apk`, then switch scanning back on.
-3. **Install from a computer** with `adb install CarMirror.apk`. Play Protect's fraud check only covers APKs installed from a browser, messaging app or file manager.
+2. **Install Lite, then upgrade from inside Car Mirror:** use **Install an update from a file…** (see step 3 below). Play Protect's fraud check only covers APKs installed from a browser, messaging app or file manager.
 
 Both versions use the same signature, so either one installs over the other, and new versions install over old ones.
 
@@ -32,26 +31,24 @@ Open **Car Mirror** on your phone, then:
    - If it's greyed out or says "Restricted setting": go back to Car Mirror, tap **Open app info → ⋮ (top right) → Allow restricted settings**, then try again.
 
 ### 3. Let Android Auto show the app (one time)
-Android Auto only runs apps like this one if the phone thinks they were installed from Google Play.
-The "Unknown sources" switch alone isn't enough, so Car Mirror has to be installed with **UnknownAuto**,
-which marks it as installed from Play. No computer is needed, but the phone must be on Wi-Fi.
+Android Auto only shows apps like this one if Android records them as installed from Google Play.
+Car Mirror can do that itself, using your phone's built-in **Wireless debugging**. There are no other apps to install and no computer needed. Android 11 or newer, and the phone must be on Wi-Fi (internet not needed).
 
-1. **Android Auto developer mode:** in Android Auto settings, tap **Version** about 10 times, then go to *⋮ → Developer settings* and turn on **Unknown sources**.
-2. **Phone developer options:** *Settings → About phone*, tap **Build number** (MIUI/HyperOS: **OS version**) 7 times.
-3. **Install UnknownAuto:** download `UnknownAuto-*.apk` from https://github.com/GitMag/UnknownAuto/releases/latest and install it. It's a third-party tool, not ours.
-4. **Install and start Shizuku**, either from inside UnknownAuto or from Google Play:
-   - Open *Developer options → Wireless debugging* and turn it on.
-   - In Shizuku, tap **Pairing**. In Wireless debugging, tap *Pair device with pairing code*, then type the 6-digit code into Shizuku's notification.
-   - In Shizuku, tap **Start**.
-   - On Xiaomi/POCO, also turn off battery optimization for Shizuku.
-5. **In UnknownAuto:** tap **Load APK**, pick the Car Mirror APK you downloaded, then tap **Install**.
-   - Allow UnknownAuto in Shizuku ("Allow all the time").
-   - If Play Protect asks, choose *More details → Install without scanning*. This also lets the full version (with touch) install.
-   - Wait for the ✔ banner. It means Android Auto will accept the app.
-6. **Restart Android Auto:** open *Settings → Apps → Android Auto → Force stop*, then go to Android Auto settings → **Customize launcher**. Car Mirror is now in the list; make sure it's checked.
+1. **Turn on Developer options:** *Settings → About phone*, tap **OS version** (or **Build number**) 7 times.
+2. **Android Auto developer mode:** in Android Auto settings, tap **Version** about 10 times, then go to *⋮ → Developer settings* and turn on **Unknown sources**.
+3. **In Car Mirror, under "Show in Android Auto":**
+   1. Tap **Turn on Wireless debugging** and switch it on (allow it on this Wi-Fi network).
+   2. Tap **Pair**. In Wireless debugging, tap **Pair device with pairing code**, pull down the notification shade, and type the 6-digit code into Car Mirror's notification. It should say **Paired ✓**.
+   3. Back in Car Mirror, tap **Make visible in Android Auto**. Car Mirror reinstalls itself and closes. Open it again; it should say *Android Auto can see Car Mirror ✓*.
+4. **Force stop Android Auto** (*Settings → Apps → Android Auto → Force stop*). Then open **Customize launcher** and check **Car Mirror**.
 
-Every Car Mirror update must be installed through UnknownAuto in the same way. Installing from the browser removes the Play mark.
-With a computer, you can skip steps 2-5 and run: `adb install -r -i com.android.vending CarMirror.apk`
+You can turn Wireless debugging off afterwards. Pairing is remembered.
+
+**Updates:** download the new APK, then use **Install an update from a file…** in Car Mirror (Wireless debugging on). Installing from the browser makes Android Auto hide the app again.
+
+**Getting the full version (touch control):** if Play Protect blocks `CarMirror.apk` from the browser, install Lite first, then install `CarMirror.apk` through **Install an update from a file…**. Installs done this way aren't blocked.
+
+With a computer you can instead run: `adb install -r -i com.android.vending CarMirror.apk`
 
 ## Every time in the car
 1. Connect the phone to the car (cable or wireless).
@@ -62,6 +59,7 @@ With a computer, you can skip steps 2-5 and run: `adb install -r -i com.android.
 6. To stop, tap **Stop mirroring** in the app or **Stop** in the notification.
 
 ## Limits
+- Car Mirror has the Internet permission only so it can talk to the phone's own Wireless debugging at 127.0.0.1. It doesn't connect anywhere else; the code is in this repo.
 - Netflix, Disney+, Prime Video and other DRM-protected apps show a black screen because they block screen capture. YouTube works.
 - The phone has to stay unlocked.
 - Swipes are replayed through the centre of the phone screen. Scrolling works, but edge swipes like pulling down notifications don't.
@@ -70,7 +68,9 @@ With a computer, you can skip steps 2-5 and run: `adb install -r -i com.android.
 ## Troubleshooting
 | Problem | Fix |
 |---|---|
-| Car Mirror isn't in Customize launcher | It was installed from the browser. Reinstall it through UnknownAuto (step 3). |
+| Car Mirror isn't in Customize launcher | It was installed from the browser. In Car Mirror, do "Show in Android Auto" (step 3), then force stop Android Auto. |
+| "Couldn't find the pairing dialog" | Keep the "Pair device with pairing code" screen open while typing the code into the notification. |
+| "Couldn't reach Wireless debugging" | Wireless debugging is off (it turns off after a reboot or Wi-Fi change). Turn it back on; no need to pair again. |
 | Car screen stays black or shows the message | Tap **Start mirroring** on the phone. If it's already on, tap Stop, then Start. |
 | Taps on the car do nothing | Touch control is off. Repeat step 2.2. (Lite has no touch control.) |
 | "App blocked by Play Protect" | See the options under **Download**. |

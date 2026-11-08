@@ -17,10 +17,15 @@ Owner: Liad (LiadSiles). Not for the Play Store (Google forbids screen mirroring
 - Two flavors: `full` (declares TouchService in `src/full/AndroidManifest.xml`) and `lite` (no accessibility
   service, because Play Protect blocks browser-sideloaded APKs that declare one). `R.bool.has_touch` tells code which.
 
-## Install gotcha
+## Install gotcha → built-in fix
 Android Auto hides Car App Library apps unless the installer is recorded as Play (`com.android.vending`);
-AA's "Unknown sources" toggle isn't enough. Users install via UnknownAuto (Shizuku) or
-`adb install -i com.android.vending`. A future option: build that installer flow into the app itself.
+AA's "Unknown sources" toggle isn't enough. `adb/PlayInstaller` fixes this in-app: it pairs with the phone's
+own Wireless debugging (libadb-android-bc via JitPack, key in `noBackupFilesDir/adb`), then streams an APK to
+`exec:cmd package install -r -i com.android.vending -S <size>`. Used for "Make visible in Android Auto"
+(reinstall self) and "Install an update from a file…". Pairing code is typed into a RemoteInput notification
+(`adb/PairReceiver`) because the Settings pairing dialog closes when you switch apps.
+INTERNET permission exists only for this localhost connection. Never add other network use.
+Not yet verified on a real device (as of v1.0.x).
 
 ## Rules
 - Keep the parked-only safety (video hidden while the car moves). Don't add a way to bypass it.
