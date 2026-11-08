@@ -29,6 +29,21 @@ android {
         }
     }
 
+    // full = with touch control (Accessibility). lite = no Accessibility, so Play Protect
+    // doesn't block it. Same package and key: either one installs over the other.
+    flavorDimensions += "edition"
+    productFlavors {
+        create("full") {
+            dimension = "edition"
+            resValue("bool", "has_touch", "true")
+        }
+        create("lite") {
+            dimension = "edition"
+            resValue("bool", "has_touch", "false")
+            versionNameSuffix = "-lite"
+        }
+    }
+
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("carmirror")

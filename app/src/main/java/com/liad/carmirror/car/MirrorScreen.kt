@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.liad.carmirror.MirrorController
+import com.liad.carmirror.R
 import com.liad.carmirror.TouchService
 import kotlin.math.abs
 
@@ -98,9 +99,11 @@ class MirrorScreen(carContext: CarContext) : Screen(carContext), DefaultLifecycl
 
     private fun checkTouch(): Boolean {
         if (TouchService.isEnabled) return true
+        val hasTouch = carContext.resources.getBoolean(R.bool.has_touch)
         CarToast.makeText(
             carContext,
-            "Turn on touch control in Car Mirror on your phone",
+            if (hasTouch) "Turn on touch control in Car Mirror on your phone"
+            else "Car Mirror Lite has no touch control. Use your phone to control it.",
             CarToast.LENGTH_LONG
         ).show()
         return false

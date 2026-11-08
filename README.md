@@ -4,11 +4,19 @@ Mirrors your Android phone to your car's Android Auto screen, with touch control
 The picture hides while the car is moving and comes back when you stop.
 
 ## 📲 Download
-Open this link on your phone. It always points to the newest build:
+There are two versions. Open the link on your phone; it always points to the newest build.
 
-**https://github.com/LiadSiles/CarMirror/releases/latest/download/CarMirror.apk**
+| Version | Touch from car screen | Link |
+|---|---|---|
+| **Car Mirror** | ✅ | https://github.com/LiadSiles/CarMirror/releases/latest/download/CarMirror.apk |
+| **Car Mirror Lite** | ❌ (control from the phone) | https://github.com/LiadSiles/CarMirror/releases/latest/download/CarMirror-Lite.apk |
 
-New versions install over the old one, and your settings are kept.
+**"App blocked by Play Protect"?** Play Protect blocks downloaded apps that use Accessibility, which the full version needs for touch control. You have three options:
+1. **Install Lite.** It installs normally; you just control the phone from the phone.
+2. **Turn off Play Protect while you install the full version:** open the *Play Store → profile icon → Play Protect → ⚙️* and switch off **Scan apps with Play Protect**. Install `CarMirror.apk`, then switch scanning back on.
+3. **Install from a computer** with `adb install CarMirror.apk`. Play Protect's fraud check only covers APKs installed from a browser, messaging app or file manager.
+
+Both versions use the same signature, so either one installs over the other, and new versions install over old ones.
 
 ## First-time setup
 
@@ -20,7 +28,7 @@ New versions install over the old one, and your settings are kept.
 ### 2. Allow permissions (phone)
 Open **Car Mirror** on your phone, then:
 1. Tap **Allow notifications**.
-2. Tap **Turn on touch control**. Under *Downloaded apps*, open **Car Mirror touch control**, switch it on and confirm.
+2. *(Full version only)* Tap **Turn on touch control**. Under *Downloaded apps*, open **Car Mirror touch control**, switch it on and confirm.
    - If it's greyed out or says "Restricted setting": go back to Car Mirror, tap **Open app info → ⋮ (top right) → Allow restricted settings**, then try again.
 
 ### 3. Let Android Auto show the app (one time)
@@ -49,7 +57,9 @@ Open **Car Mirror** on your phone, then:
 |---|---|
 | Car Mirror isn't in the car's app list | Check step 3 (Unknown sources and Customize launcher), then reconnect the phone. |
 | Car screen stays black or shows the message | Tap **Start mirroring** on the phone. If it's already on, tap Stop, then Start. |
-| Taps on the car do nothing | Touch control is off. Repeat step 2.2. |
+| Taps on the car do nothing | Touch control is off. Repeat step 2.2. (Lite has no touch control.) |
+| "App blocked by Play Protect" | See the options under **Download**. |
+| "App not installed" / "problem parsing" | The app needs Android 10 or newer. |
 | Picture disappears when driving | That's the safety pause. It comes back when the car stops. |
 | Update won't install | Uninstall Car Mirror once, then install the new APK. |
 

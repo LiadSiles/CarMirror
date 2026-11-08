@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
@@ -25,6 +26,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var notifButton: Button
     private lateinit var touchButton: Button
     private lateinit var mirrorButton: Button
+    private lateinit var appInfoButton: Button
+    private val hasTouch by lazy { resources.getBoolean(R.bool.has_touch) }
 
     private val listener: () -> Unit = { refresh() }
 
@@ -59,7 +62,7 @@ class MainActivity : ComponentActivity() {
         touchButton = button("Turn on touch control") {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
-        val appInfoButton = button("Open app info (if touch control is greyed out)") {
+        appInfoButton = button("Open app info (if touch control is greyed out)") {
             startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
             )
@@ -121,12 +124,20 @@ class MainActivity : ComponentActivity() {
         status.text = buildString {
             appendLine("Car Mirror v$version")
             appendLine("Car screen: " + if (car) "connected ✓" else "not open yet")
-            appendLine("Touch control: " + if (touchOk) "on ✓" else "off")
+            appendLine("Touch control: " + when {
+                !hasTouch -> "not in Lite version"
+                touchOk -> "on ✓"
+                else -> "off"
+            })
             append("Mirroring: " + when {
                 mirroring && MirrorController.drivingPause -> "paused (car moving)"
                 mirroring -> "on ✓"
                 else -> "off"
             })
+        }
+        if (!hasTouch) {
+            touchButton.visibility = View.GONE
+            appInfoButton.visibility = View.GONE
         }
         notifButton.isEnabled = !notifOk
         notifButton.text = if (notifOk) "Notifications allowed ✓" else "Allow notifications"

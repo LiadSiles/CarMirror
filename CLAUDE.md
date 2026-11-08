@@ -14,10 +14,13 @@ Owner: Liad (LiadSiles). Not for the Play Store (Google forbids screen mirroring
 - `TouchService` — AccessibilityService; injects taps/swipes with `dispatchGesture`.
 - `car/TouchForwarder` — maps car coordinates to phone (letterboxed fit) and replays scroll/fling as swipes.
 - `MainActivity` — phone setup screen built in code (no XML layouts).
+- Two flavors: `full` (declares TouchService in `src/full/AndroidManifest.xml`) and `lite` (no accessibility
+  service, because Play Protect blocks browser-sideloaded APKs that declare one). `R.bool.has_touch` tells code which.
 
 ## Rules
 - Keep the parked-only safety (video hidden while the car moves). Don't add a way to bypass it.
 - Every push to `main` builds and publishes a GitHub release; `versionCode` = CI run number.
 - The signing key `app/carmirror.jks` must not change, or updates won't install over the old app.
 - The development sandbox can't reach Google's Maven, so compile checks happen in GitHub Actions.
-  Make changes on a branch, open a PR, and check the Actions build before merging.
+  Every branch push runs the build (only `main` publishes a release). Make changes on a branch, check its
+  Actions run passes, then merge to `main`.

@@ -3,11 +3,10 @@ name: Build APK
 # Every push to main builds the app and publishes it as the "latest" release,
 # so the newest APK is always at:
 # https://github.com/LiadSiles/CarMirror/releases/latest/download/CarMirror.apk
-# Pull requests only build (to catch errors) and attach the APK as an artifact.
+# Other branches and pull requests only build (to catch errors) and attach the APK as an artifact.
 
 on:
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -38,13 +37,17 @@ jobs:
       - name: Build APK
         run: gradle assembleRelease --no-daemon --stacktrace
 
-      - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk CarMirror.apk
+      - name: Rename APKs
+        run: |
+          cp app/build/outputs/apk/full/release/app-full-release.apk CarMirror.apk
+          cp app/build/outputs/apk/lite/release/app-lite-release.apk CarMirror-Lite.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: CarMirror-${{ github.run_number }}
-          path: CarMirror.apk
+          path: |
+            CarMirror.apk
+            CarMirror-Lite.apk
 
       - name: Publish release
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -52,7 +55,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v1.0.${{ github.run_number }}"
-          gh release create "$TAG" CarMirror.apk \
+          gh release create "$TAG" CarMirror.apk CarMirror-Lite.apk \
             --title "Car Mirror $TAG" \
-            --notes "Built from ${{ github.sha }}. Install CarMirror.apk on your phone (it updates the existing app)." \
+            --notes "Built from ${{ github.sha }}. CarMirror.apk = with touch control. CarMirror-Lite.apk = no touch control, use it if Play Protect blocks the full one." \
             --latest
