@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io") // libadb-android-bc
     }
 }
 rootProject.name = "CarMirror"

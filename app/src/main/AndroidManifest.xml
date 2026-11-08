@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- Only used to reach the phone's own Wireless debugging service on this device
+         (127.0.0.1) for "Make visible in Android Auto". Android requires INTERNET for any socket. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <!-- Android Auto: draw on the car screen and read vehicle speed -->
     <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
     <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
@@ -25,6 +30,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".adb.PairReceiver"
+            android:exported="false" />
 
         <service
             android:name=".MirrorService"

@@ -61,6 +61,15 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    packaging {
+        resources {
+            // BouncyCastle jars ship duplicate metadata files.
+            excludes += setOf(
+                "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+                "META-INF/BCKEY.DSA", "META-INF/BCKEY.SF",
+            )
+        }
+    }
     lint {
         abortOnError = false
     }
@@ -71,4 +80,10 @@ dependencies {
     implementation("androidx.car.app:app-projected:1.4.0")
     implementation("androidx.activity:activity-ktx:1.9.3")
     implementation("androidx.core:core-ktx:1.13.1")
+
+    // Talks to the phone's own Wireless debugging (like a computer's adb would),
+    // so Car Mirror can reinstall itself marked as "installed from Google Play".
+    implementation("com.github.osservatorionessuno:libadb-android-bc:3.2.0")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.84")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.84")
 }

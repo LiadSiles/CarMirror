@@ -18,6 +18,9 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.liad.carmirror.adb.PlayInstaller
+import java.io.File
+import java.util.concurrent.Executors
 
 /** Phone-side setup screen: permissions, touch control and the Start/Stop button. */
 class MainActivity : ComponentActivity() {
@@ -28,6 +31,17 @@ class MainActivity : ComponentActivity() {
     private lateinit var mirrorButton: Button
     private lateinit var appInfoButton: Button
     private val hasTouch by lazy { resources.getBoolean(R.bool.has_touch) }
+
+    // "Show in Android Auto" section
+    private lateinit var aaStatus: TextView
+    private lateinit var aaButtons: List<Button>
+    private lateinit var aaProgress: TextView
+    private val worker = Executors.newSingleThreadExecutor()
+
+    private val apkPicker =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) installFromFile(uri)
+        }
 
     private val listener: () -> Unit = { refresh() }
 
@@ -76,12 +90,48 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        val aaTitle = TextView(this).apply {
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            text = "\nShow in Android Auto"
+        }
+        aaStatus = TextView(this).apply { textSize = 15f }
+        aaProgress = TextView(this).apply { textSize = 15f }
+        aaButtons = listOf(
+            button("1. Turn on Wireless debugging") {
+                PlayInstaller.openWirelessDebugging(this)
+            },
+            button("2. Pair (type the code in the notification)") {
+                PlayInstaller.showPairingNotification(this)
+                PlayInstaller.openWirelessDebugging(this)
+            },
+            button("3. Make visible in Android Auto") {
+                runInstall("Reinstalling Car Mirror… the app will close by itself when it's done. Open it again after.") {
+                    PlayInstaller.reinstallSelf(this)
+                }
+            },
+            button("Install an update from a file…") {
+                apkPicker.launch(arrayOf("application/vnd.android.package-archive", "application/octet-stream"))
+            },
+        )
+        val aaHelp = TextView(this).apply {
+            textSize = 14f
+            text = """
+                Android Auto only shows apps installed from Google Play. These steps reinstall Car Mirror so Android records it that way, using your phone's own Wireless debugging (no other apps, no computer).
+                • Once: Settings → About phone → tap "OS version" (or "Build number") 7 times to turn on Developer options.
+                • The phone must be on Wi-Fi (internet not needed).
+                • In step 2, tap "Pair device with pairing code" in Wireless debugging, then type the 6 digits into Car Mirror's notification.
+                • Install future updates with "Install an update from a file…" so Android Auto keeps showing the app.
+                • You can turn Wireless debugging off when you're done.
+            """.trimIndent()
+        }
+
         val help = TextView(this).apply {
             textSize = 15f
             text = """
                 How to use
                 1. Connect your phone to the car and open Car Mirror on the car screen.
-                   (First time only: Android Auto → tap "Version" 10 times → ⋮ → Developer settings → turn on "Unknown sources", then add Car Mirror in Customize launcher.)
+                   (First time only: do "Show in Android Auto" above, then in Android Auto settings → Customize launcher, check Car Mirror.)
                 2. Tap "Start mirroring" here and choose "Entire screen".
                 3. Taps and swipes on the car screen control the phone. Back / Home / Apps are on the car screen's side buttons.
 
@@ -93,7 +143,10 @@ class MainActivity : ComponentActivity() {
             """.trimIndent()
         }
 
-        listOf(status, notifButton, touchButton, appInfoButton, mirrorButton, help).forEach {
+        val aaViews: List<View> =
+            if (PlayInstaller.supported) listOf(aaTitle, aaStatus) + aaButtons + listOf(aaProgress, aaHelp)
+            else listOf(aaTitle, aaStatus)
+        (listOf(status, notifButton, touchButton, appInfoButton, mirrorButton) + aaViews + help).forEach {
             column.addView(it, LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = pad / 2 })
@@ -143,6 +196,45 @@ class MainActivity : ComponentActivity() {
         notifButton.text = if (notifOk) "Notifications allowed ✓" else "Allow notifications"
         touchButton.text = if (touchOk) "Touch control on ✓" else "Turn on touch control"
         mirrorButton.text = if (mirroring) "Stop mirroring" else "Start mirroring"
+        aaStatus.text = when {
+            !PlayInstaller.supported -> "Needs Android 11 or newer. On this phone, install Car Mirror from a computer: adb install -r -i com.android.vending CarMirror.apk"
+            PlayInstaller.installedFromPlay(this) -> "Android Auto can see Car Mirror ✓"
+            else -> "Android Auto is hiding Car Mirror right now, because it wasn't installed from Google Play. Do steps 1–3 below."
+        }
+    }
+
+    private fun runInstall(startMessage: String, action: () -> Result<String>) {
+        aaProgress.text = startMessage
+        aaButtons.forEach { it.isEnabled = false }
+        worker.execute {
+            val result = action()
+            runOnUiThread {
+                aaButtons.forEach { it.isEnabled = true }
+                aaProgress.text = result.fold(
+                    onSuccess = { "Done ✓ Android Auto can now see Car Mirror. Force stop Android Auto (or reconnect the car), then check it in Customize launcher." },
+                    onFailure = { "Didn't work: ${it.message}" }
+                )
+                refresh()
+            }
+        }
+    }
+
+    private fun installFromFile(uri: Uri) {
+        runInstall("Installing the update…") {
+            runCatching {
+                val file = File(cacheDir, "update.apk")
+                contentResolver.openInputStream(uri)!!.use { input ->
+                    file.outputStream().use { input.copyTo(it) }
+                }
+                file
+            }.mapCatching { file ->
+                try {
+                    PlayInstaller.install(this, file).getOrThrow()
+                } finally {
+                    file.delete()
+                }
+            }
+        }
     }
 
     private fun button(text: String, onClick: () -> Unit) = Button(this).apply {
